@@ -13,14 +13,44 @@ sourceLines = sourceFile.readlines();
 # Create main token class
 
 class Token:
+    abv = 'GEN'
+    
+    def __init__(self, value):
+        self.value = value
+        
+    def __str__(self):
+        return self.abv + ': ' + self.value
+        
     pass
 
 # Token Subclasses
 
 class Relational(Token):
+    abv = 'REL'
+    
     pass
 
-# Simplifies regex return
+class Keyword(Token):
+    abv = 'KEYWORD'
+        
+    pass
+
+class Identifier(Token):
+    abv = 'IDENTIFIER'
+    
+    pass
+
+class Delimiter(Token):
+    abv = 'DELIM'
+    
+    pass
+
+class Error(Token):
+    abv = 'ERROR'
+    
+    pass
+
+# Removes None and Space values from return
 
 def simplify(x):
     return x
@@ -73,16 +103,29 @@ numLines = len(sourceLines)
 
 delims = re.compile(delimiters)
 
+sortedTokens = []
+
 while i < numLines:
     curLine = handleComments()
+    
+    # Run regex to split string
+    
     tokens = filter(simplify, delims.split(curLine))
     
+    # Loop through all of the tokens, check to see what form they match up with and create an appropriate object
     for token in tokens:
-        print(token)
+        if(token in delimiters):
+            delim = Delimiter(token)
+            sortedTokens.append(delim)
+            print(delim)
+        else:
+            print(token)
     
     i += 1
+
+print(sortedTokens)
     
 
-# Run regex to split string
+
 
 
