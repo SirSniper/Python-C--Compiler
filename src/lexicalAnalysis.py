@@ -1,15 +1,35 @@
 import re, sys
 from re import match
 
-print(sys.argv[1])
-
+# Get source file, if unavailable, exit
 try:
     sourceFile = open(sys.argv[1], 'r')
 except Exception as e:
     print("Error: Source File not found, quitting") 
     sys.exit()
     
-sourceLines = sourceFile.readlines();
+sourceLines = sourceFile.readlines()
+sourceFile.close()
+
+# Gets some language details from config files, changes to these files will still need to be updated in the regex
+def getLanguageSemantics(filename, semanticsName):
+    try:
+        semanticsFile = open(filename, 'r')
+    except Exception as e:
+        print("Error: " + semanticsName + " File not found, quitting") 
+        sys.exit()
+        
+    items = []
+    lines = semanticsFile.readlines()
+    for item in lines:
+        items.append(item.strip())
+    
+    semanticsFile.close()
+    return items
+
+keywords = getLanguageSemantics(sys.argv[2], 'Keywords')
+delimiters = getLanguageSemantics(sys.argv[3], 'Delimiters')
+relationOperators = getLanguageSemantics(sys.argv[4], 'Relational Operators')
 
 # Create main token class
 
@@ -27,7 +47,7 @@ class Token:
 # Token Subclasses
 
 class Relational(Token):
-    abv = 'REL'
+    abv = 'REL/OPERATION'
     
     pass
 
@@ -41,6 +61,11 @@ class Identifier(Token):
     
     pass
 
+class Number(Token):
+    abv = 'NUM'
+    
+    pass
+
 class Delimiter(Token):
     abv = 'DELIM'
     
@@ -51,84 +76,76 @@ class Error(Token):
     
     pass
 
-# Removes None and Space values from return
+# Removes None and Space values from return, used with filter functions
 
 def simplify(x):
     return x
 
-# Iterable counter
-def count_iterable(i):
-    return sum(1 for e in i)
-
-# Multi-line comment Handling function
+# Multi-line comment Handling function-
 commentDepth = 0
 
 def handleComments():
     global i, commentDepth
     
-    multiline = re.compile(r'\/\*|\*\/')
+    multiline = re.compile(r'(\/\*)|(\*\/)')
     
-    beginMultiline = re.compile(r'\/\*')
-    
-    endMultiline = re.compile(r'\*\/')
-
-    singleLine = re.compile(r'\\\\')
-    
-    justStart = re.compile(r'(\/\*((?!\*\/|\/\*).)*)')
-
-    print('INPUT: ' + sourceLines[i].strip())
+    if(sourceLines[i].strip()):
+        print()
+        print('INPUT: ' + sourceLines[i].strip())
     
     strippedLine = sourceLines[i]
+    # Split the line at comment chars to be processed
+    splitLine = list(filter(simplify, multiline.split(strippedLine.strip())))
+    
+    returnLine = ''
         
-    
-    # Create an iterator for all multiline character matches
-    lineCommentChars = multiline.findall(strippedLine)
-    
-    # Check to see if there were any multiline chars
-    if(len(lineCommentChars) > 0):
-        for match in lineCommentChars:
-            # check line for /* or */
+    # If we have any comment chars, process them
+    if(len(splitLine) > 1):
+        for match in splitLine:
             if(match == '/*'):
                 # if /*, increment depth as we have found another internal Comment
                 commentDepth += 1
-                
-                # Remove content up to next comment char
-                strippedLine =  re.sub(re.escape(justStart.search(strippedLine).group(0)), '', strippedLine, count=1)
-            else:
-                # if */, decrement depth as we have closed a Comment
+            elif(match == '*/'):
+                # If we are in a comment, we need to decrement depth
                 if(commentDepth > 0):
                     commentDepth -= 1
-                    if(commentDepth == 0):
-                        print('Closes Comment, need to check if all before was in comment or not, how to solve?')
-                        strippedLine = re.sub(endMultiline, '', strippedLine, count=1)
-                    else:
-                        strippedLine = re.sub(endMultiline, '', strippedLine, count=1)
-                    print(strippedLine)
-            print(commentDepth)    
-                
-                
-    # If no multiline chars, check if already in a multiline
-    elif(commentDepth > 0):
-        # If in a multiline, nothing should be processed
-        return ''
+                # If we aren't in a comment, then this is part of the string
+                else:
+                    returnLine += ' ' + match
+            else:
+                # If we aren't in a comment, add the text to the returned string, if not ignore it
+                if(commentDepth == 0):
+                    returnLine += ' ' + match
+    # If we don't have comment chars, check if we are in a comment    
     else:
-        print('Still in comment')
+        # If we aren't in a comment, return the string after removing single line comments
+        if(commentDepth == 0):
+            return re.sub(r'\/\/.*', '', strippedLine).strip()
+        # If the whole line is in a comment, return nothing to be processed
+        else:
+            return ''
     
-    # Check if eof, if eof we have reached the end of the source code and everything is a Comment
-    
-    return re.sub(r'\\\\.*', '', strippedLine).strip();
+    return re.sub(r'\/\/.*', '', returnLine).strip()
 
 
-# Loop Through All lines and create an array of tokens in order
+# This regex will be used to delimit the original string and separate it into tokens
+delimitersRegex = r'(\d+(?:\.\d+)?(?:E(?:-|\+)?\d+)?)|(\{|\}|\(|\)|;|,|\[|\])|(<=|>=|<|>|==|\+|\*|-|\/|=|\!=)|\s'
+delims = re.compile(delimitersRegex)
 
-delimiters = r'(\{|\}|\(|\)|;)|(\d+)|(\d+\.\d+)|(\<|>|==)|\s'
+# These regexs will be used to verify token type later on
+identifierRegexContent = r'[a-zA-Z]+'
+identifierRegex = re.compile(identifierRegexContent)
+
+numberRegexContent = r'\d+(\.\d+)?(E(-|\+)?\d+)?'
+numberRegex = re.compile(numberRegexContent)
 
 i = 0
 numLines = len(sourceLines)
 
-delims = re.compile(delimiters)
-
 sortedTokens = []
+
+# Loop Through All lines and create an array of tokens in order
+
 
 while i < numLines:
     curLine = handleComments()
@@ -138,18 +155,36 @@ while i < numLines:
     
     # Loop through all of the tokens, check to see what form they match up with and create an appropriate object
     for token in tokens:
-        if(token in delimiters):
+        # If it's a keyword, add a keyword token
+        if(token.lower() in keywords):
+            keyword = Keyword(token)
+            sortedTokens.append(keyword)
+            print(keyword)
+        # If it's a delimiter, add a delimiter token
+        elif(token in delimiters):
             delim = Delimiter(token)
             sortedTokens.append(delim)
             print(delim)
+        # If it's a relational/operator, add a relational token
+        elif(token in relationOperators):
+            relation = Relational(token)
+            sortedTokens.append(relation)
+            print(relation)
+        # If it's an identifier, add an identifier token
+        elif(identifierRegex.fullmatch(token)):
+            iden = Identifier(token)
+            sortedTokens.append(iden)
+            print(iden)
+        # If it's a number, add a number token
+        elif(numberRegex.fullmatch(token)):
+            num = Number(token)
+            sortedTokens.append(num)
+            print(num)
+        # If it's none of the above, then it is an error
         else:
-            print(token)
-    
+            error = Error(token)
+            sortedTokens.append(error)
+            print(error)
     i += 1
 
-print(sortedTokens)
-    
-
-
-
-
+print(str(len(sortedTokens)) + ' Individual Tokens Found')
