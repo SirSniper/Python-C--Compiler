@@ -125,7 +125,7 @@ def handleComments():
         else:
             return ''
     
-    return re.sub(r'\/\/.*', '', returnLine).strip()
+    return re.sub(r'\/\/.*', ' ', returnLine).strip()
 
 
 # This regex will be used to delimit the original string and separate it into tokens
@@ -133,7 +133,8 @@ delimitersRegex = r'(\d+(?:\.\d+)?(?:E(?:-|\+)?\d+)?)|(\{|\}|\(|\)|;|,|\[|\])|(<
 delims = re.compile(delimitersRegex)
 
 # These regexs will be used to verify token type later on
-identifierRegexContent = r'[a-zA-Z]+'
+# E alone not allowed as it's a special char
+identifierRegexContent = r'((?!(^E$))[a-zA-Z])+'
 identifierRegex = re.compile(identifierRegexContent)
 
 numberRegexContent = r'\d+(\.\d+)?(E(-|\+)?\d+)?'
@@ -187,4 +188,4 @@ while i < numLines:
             print(error)
     i += 1
 
-print(str(len(sortedTokens)) + ' Individual Tokens Found')
+#print(str(len(sortedTokens)) + ' Individual Tokens Found')
