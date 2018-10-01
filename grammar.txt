@@ -1,0 +1,26 @@
+P -> DL
+DL -> DL D | D
+D -> DV | DF
+DV -> T id; | T id [ n ] ;
+T -> i | v
+DF -> T id ( PA ) C
+PS -> PL | v
+PL -> PL , PA | PA
+PA -> T id | T id [ ]
+C ->  { LD SL }
+LD -> LD DV | ^
+SL -> SL S | ^
+S -> ES | C | SS | IS | RS
+ES -> E ; | ; 
+SS -> if( E ) S | if( E ) S else S
+IS -> while( E ) S
+RS -> return ; | return E ;
+E -> V = E | SE
+V -> id | id [ E ]
+SE -> AE r AE | AE
+AE -> AE a TE | TE
+TE -> TE m F | F
+F -> ( E ) | V | CA | n
+CA -> id ( AR )
+AR -> AL | ^
+AL -> AL , E | E

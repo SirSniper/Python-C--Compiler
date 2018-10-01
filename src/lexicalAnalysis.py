@@ -134,10 +134,10 @@ delims = re.compile(delimitersRegex)
 
 # These regexs will be used to verify token type later on
 # E alone not allowed as it's a special char
-identifierRegexContent = r'((?!(^E$))[a-zA-Z])+'
+identifierRegexContent = r'((?!(^E$))[a-zA-Z])+$'
 identifierRegex = re.compile(identifierRegexContent)
 
-numberRegexContent = r'\d+(\.\d+)?(E(-|\+)?\d+)?'
+numberRegexContent = r'\d+(\.\d+)?(E(-|\+)?\d+)?$'
 numberRegex = re.compile(numberRegexContent)
 
 i = 0
@@ -172,12 +172,12 @@ while i < numLines:
             sortedTokens.append(relation)
             print(relation)
         # If it's an identifier, add an identifier token
-        elif(identifierRegex.fullmatch(token)):
+        elif(identifierRegex.match(token)):
             iden = Identifier(token)
             sortedTokens.append(iden)
             print(iden)
         # If it's a number, add a number token
-        elif(numberRegex.fullmatch(token)):
+        elif(numberRegex.match(token)):
             num = Number(token)
             sortedTokens.append(num)
             print(num)
