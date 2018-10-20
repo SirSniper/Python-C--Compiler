@@ -1,0 +1,160 @@
+P $
+DL | i v f
+-
+DL $
+D DL' | i v f
+-
+DL' $
+D DL' | i v f
+# | #
+-
+D i v f $
+T id H | i v f
+-
+H i v f $
+Y | ; [
+( PS ) C | (
+-
+DV i v f { ; if while return id ( n {
+T id Y | i v f
+-
+Y i v f $ { ; if while return id ( n }
+; | ;
+[ n ] ; | [
+-
+T id
+i | i
+v | v
+f | f
+-
+PS )
+v ZZ | v
+K id X PL' | i f
+-
+K id
+i | i
+f | f
+-
+ZZ )
+id X PL' | id
+# | #
+-
+PL' )
+, PA PL' | ,
+# | #
+-
+PA , )
+T id X | i v f
+-
+X , )
+[ ] | [
+# | #
+-
+C i v f $ { ; if while return id ( n } else
+{ LD SL } | {
+-
+LD { ; if while return id ( n }
+LD' | # i v f
+# | #
+-
+LD' { ; if while return id ( n }
+DV LD' | i v f
+# | #
+-
+SL }
+SL' | { ; if while return id ( n #
+# | #
+-
+SL' }
+# | #
+S SL' | { ; if while return id ( n
+-
+S { ; if while return id ( n } else
+ES | ; id ( n
+C | {
+SS | if
+IS | while
+RS | return
+-
+ES { ; if while return id ( n } else
+E ; | id ( n
+; | ;
+-
+SS { ; if while return id ( n } else
+if ( E ) S Z | if
+-
+Z { ; if while return id ( n } else
+else S | else
+# | #
+-
+IS { ; if while return id ( n } else
+while ( E ) S | while
+-
+RS { ; if while return id ( n } else
+return ES | return
+-
+J = m a r ; ) ] ,
+[ E ] | [
+# | #
+-
+E ; ) ]
+id W | id
+( E ) N | (
+n N | n
+-
+W ; ) ] ,
+J Q | [ = m a r #
+( AR ) N | (
+# | #
+-
+Q ; ) ] ,
+= E | =
+N | m a r #
+# | #
+-
+N ; ) ] ,
+TE' AE' G | m a r #
+# | #
+-
+J = m a r ; ) ] ,
+[ E ] | [
+# | #
+-
+G ; ) ] ,
+r AE | r
+# | #
+-
+AE r ; ) ] ,
+TE AE' | ( id n
+-
+AE' r ; ) ] ,
+a TE AE' | a
+# | #
+-
+TE a r ; ) ] ,
+F TE' | ( id n
+-
+TE' a r ; ) ] ,
+m F TE' | m
+# | #
+-
+F m a r ; ) ] ,
+( E ) | (
+id L | id
+n | n
+-
+L m a r ; ) ] ,
+J | # [
+( AR ) | (
+# | #
+-
+AR )
+AL | id ( n
+# | #
+-
+AL )
+E AL' | id ( n
+-
+AL' )
+, E AL' | ,
+# | #
