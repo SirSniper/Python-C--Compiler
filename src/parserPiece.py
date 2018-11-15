@@ -1,5 +1,5 @@
 import re, sys, pprint
-import lexicalAnalysisPiece
+import lexicalAnalysisPiece, semanticsAnalysisPiece
 
 def reversedList(list):
     reversed = []
@@ -7,8 +7,6 @@ def reversedList(list):
         reversed.insert(0, i)
     return reversed
         
-
-
 sortedTokens = lexicalAnalysisPiece.analyze(sys.argv)
 
 try:
@@ -23,7 +21,6 @@ grammarFile.close()
 rules = {}
 first = {}
 follow = {}
-
 
 done = False
 nt = True
@@ -63,36 +60,38 @@ while(not done):
     count += 1
     # Temp error handling
     if(count == sys.maxsize):
-        print('Reject')
+        print('REJECT')
         break
     item = sortedTokens[i]
     # If the stack matches the item, remove it
     if(item.getSymbol() == stack[-1]):
+        semanticsAnalysisPiece.terminalFound(item)
         stack.pop()
         i += 1
         # If the stack is empty and 
         if(len(stack) == 0):
             if(i == len(sortedTokens)):
-                print('Accept')
+                print('ACCEPT')
             else:
-                print('Reject')
-            
+                print('REJECT')
             done = True
         continue
     elif(stack[-1] in nts):
         for rule in rules[stack[-1]]:
             if(item.getSymbol() in first[''.join(rule)]):
+                semanticsAnalysisPiece.semanticCheck(stack[-1], rule, item)
                 stack.pop()
                 stack.extend(reversedList(rule))
                 found = True
                 break
             elif('#' == rule[0] and item.getSymbol() in follow[stack[-1]]):
+                semanticsAnalysisPiece.semanticCheck(stack[-1], rule, item)
                 found = True
                 stack.pop()
                 break
         if(not found):
             done = True
-            print('Reject')
+            print('REJECT')
     else:
         done = True
-        print('Reject')
+        print('REJECT')

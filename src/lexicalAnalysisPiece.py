@@ -63,10 +63,16 @@ class Identifier(Token):
 
 class Number(Token):
     abv = 'NUM'
+    floatRegex = r'(\d+(?:\.\d+)(?:E(?:-|\+)?\d+)?)|(\d+(?:E(?:-|\+)?\d+))'
     
     def getSymbol(self):
         return 'n'
     
+    def isFloat(self):
+        if(re.match(self.floatRegex, self.value)):
+            return True
+        else:
+            return False
     pass
 
 class Delimiter(Token):
